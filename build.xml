@@ -150,4 +150,21 @@
         <delete dir="${build}"/>
     </target>
 
+	<target name="dist-mini" depends="buildjs, redist"/>
+	
+	<target name="dist-maxi" depends="buildjs-maxi, redist"/>
+
+	<target name="buildjs-maxi">
+
+        <mkdir dir="${build}/${ant.project.name}/WEB-INF/app/static/script"/>
+        
+        <copy todir="${build}/buildkit/lib/buildkit" file="app/build-maxi.js"/>
+        
+        <java jar="${build}/ringo/run.jar" fork="true" failonerror="true">
+            <sysproperty key="ringo.classpath" path="${build}/ringo/lib/**"/>
+            <arg path="${build}/buildkit/lib/buildkit/build-maxi.js"/>
+            <arg line="-o ${build}/${ant.project.name}/WEB-INF/app/static/script buildjs.cfg"/>
+        </java>
+    </target>
+    
 </project>
