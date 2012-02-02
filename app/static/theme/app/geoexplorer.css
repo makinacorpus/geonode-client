@@ -73,6 +73,10 @@
     background-image: url(img/geosilk/map_save.png);
 }
 
+.x-btn .icon-routing {
+    background-image: url(img/geosilk/routing.png);
+}
+
 /* Really for CAPRA, watch out! */
 
 .x-menu-group-item .icon-point,

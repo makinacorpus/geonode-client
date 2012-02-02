@@ -109,6 +109,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
     printWindowTitleText: "UT:Print Preview",
     propertiesText: "UT:Properties",
     publishActionText: 'UT:Publish Map',
+    routingActionText: 'UT:Routing',
     saveFailMessage: "UT: Sorry, your map could not be saved.",
     saveFailTitle: "UT: Error While Saving",
     saveMapText: "UT: Save Map",
@@ -809,27 +810,45 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             scope: this
         });
 
-        var tools = [
-            new Ext.Button({
-                tooltip: this.saveMapText,
-                handler: this.showMetadataForm,
-                scope: this,
-                iconCls: "icon-save"
-            }),
-            new Ext.Action({
-                tooltip: this.publishActionText,
-                handler: this.makeExportDialog,
-                scope: this,
-                iconCls: 'icon-export',
-                disabled: !this.mapID
-            }),
-            window.printCapabilities ? printButton : "",
-            "-",
-            enable3DButton
-        ];
+        var tools = [];
+        var publishEnable = false;
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("save") != -1)
+            tools.push(new Ext.Button({
+                    tooltip: this.saveMapText,
+                    handler: this.showMetadataForm,
+                    scope: this,
+                    iconCls: "icon-save"
+                }));
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("publish") != -1) {
+            tools.push(new Ext.Action({
+                    tooltip: this.publishActionText,
+                    handler: this.makeExportDialog,
+                    scope: this,
+                    iconCls: 'icon-export',
+                    disabled: !this.mapID
+                }));
+            publishEnable = true;
+        }
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("print") != -1)
+            tools.push(window.printCapabilities ? printButton : "");
+        tools.push("-");
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("3D") != -1)
+            tools.push(enable3DButton);
+
+        // Routing
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("routing") != -1)
+            tools.push(new Ext.Action({
+                    tooltip: this.routingActionText,
+                    handler: this.showRoute,
+                    scope: this,
+                    iconCls: 'icon-routing'
+                }));
+
+
         this.on("saved", function() {
             // enable the "Publish Map" button
-            tools[1].enable();
+            if(publishEnable)
+                tools[1].enable();
             this.modified ^= this.modified & 1;
         }, this);
 
@@ -852,6 +871,68 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                 url: this.rest + this.mapID + "/embed" 
             }]
         }).show();
+    },
+
+    /** private: method[showRoute]
+     *
+     * Enable user to select a node on map, and trace route to ref node
+     *
+     */
+    showRoute: function() {
+        // Wait for the user to click on the map (a node)
+        this.mapPanel.map.events.register('click', this.mapPanel.map, function (e) {
+            var pixel = new OpenLayers.Pixel(e.xy.x,e.xy.y);
+            var lonlat = this.getLonLatFromPixel(pixel);
+            // Find the closest node, and display route to node ref
+            Ext.Ajax.request({
+                url: "/route/?x="+lonlat.lon+"&y="+lonlat.lat,
+                method: 'GET',
+                success: function(response, options) {
+                    // Draw the response :
+
+                    // Clear layer
+                    data = Ext.util.JSON.decode(response.responseText);
+                    route_layers = this.getLayersByName("route_layer");
+                    if(route_layers.length == 0) {
+                        routeLay = new OpenLayers.Layer.Vector("route_layer");
+                        this.addLayer(routeLay);
+                    }
+                    else {
+                        routeLay = route_layers[0];
+                        routeLay.removeAllFeatures();
+                    }
+
+                    // Add features
+                    var wkt = new OpenLayers.Format.WKT();
+                    var wktData = data.route[0].geometries[0];
+                    if(!wktData) {
+                        Ext.Msg.alert('No informations', 'No route has been found for the closest node.');
+                        return;
+                    }
+                    var features = wkt.read(wktData);
+                    if(features) {
+                        if(features.constructor != Array) {
+                            features = [features];
+                        }
+                        var bounds;
+                        for(var i=0; i<features.length; ++i) {
+                            if (!bounds) {
+                                bounds = features[i].geometry.getBounds();
+                            } else {
+                                bounds.extend(features[i].geometry.getBounds());
+                            }
+
+                        }
+                        routeLay.addFeatures(features);
+                    }
+                },
+                failure: function(response, options) {
+                    Ext.Msg.alert('No informations', 'The route could not be retreive.');
+                },
+                scope: this
+            });
+
+        });
     },
 
     /** private: method[initMetadataForm]
