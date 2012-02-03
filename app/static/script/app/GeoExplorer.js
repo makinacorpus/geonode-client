@@ -890,11 +890,20 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                 success: function(response, options) {
                     // Draw the response :
 
+                    var styleRoute = new OpenLayers.StyleMap({
+                        "default": new OpenLayers.Style({
+                            pointRadius: 6, // sized according to type attribute
+                            strokeColor: "#00FF00",
+                            strokeWidth: 6,
+                            graphicZIndex: 1
+                        })
+                    });
+
                     // Clear layer
                     data = Ext.util.JSON.decode(response.responseText);
                     route_layers = this.getLayersByName("route_layer");
                     if(route_layers.length == 0) {
-                        routeLay = new OpenLayers.Layer.Vector("route_layer");
+                        routeLay = new OpenLayers.Layer.Vector("route_layer", {styleMap: styleRoute});
                         this.addLayer(routeLay);
                     }
                     else {
@@ -924,6 +933,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
 
                         }
                         routeLay.addFeatures(features);
+
                     }
                 },
                 failure: function(response, options) {
