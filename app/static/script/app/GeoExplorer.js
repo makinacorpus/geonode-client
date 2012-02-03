@@ -837,10 +837,11 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
 
         // Routing
         if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("routing") != -1)
-            tools.push(new Ext.Action({
+            tools.push(new Ext.Button({
                     tooltip: this.routingActionText,
                     handler: this.showRoute,
                     scope: this,
+                    enableToggle: true,
                     iconCls: 'icon-routing'
                 }));
 
@@ -878,70 +879,86 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
      * Enable user to select a node on map, and trace route to ref node
      *
      */
-    showRoute: function() {
-        // Wait for the user to click on the map (a node)
-        this.mapPanel.map.events.register('click', this.mapPanel.map, function (e) {
-            var pixel = new OpenLayers.Pixel(e.xy.x,e.xy.y);
-            var lonlat = this.getLonLatFromPixel(pixel);
-            // Find the closest node, and display route to node ref
-            Ext.Ajax.request({
-                url: "/route/?x="+lonlat.lon+"&y="+lonlat.lat,
-                method: 'GET',
-                success: function(response, options) {
-                    // Draw the response :
+    showRoute: function(button) {
+        if(button.pressed) {
+            // Wait for the user to click on the map (a node)
+            this.mapPanel.map.events.register('click', this.mapPanel.map, this.retreive_route);
+        }
+        else {
+            this.mapPanel.map.events.unregister('click', this.mapPanel.map, this.retreive_route);
+            route_layers = this.mapPanel.map.getLayersByName("route_layer");
+            if(route_layers.length != 0) {
+                routeLay = route_layers[0];
+                routeLay.removeAllFeatures();
+            }
+        }
+    },
 
-                    var styleRoute = new OpenLayers.StyleMap({
-                        "default": new OpenLayers.Style({
-                            pointRadius: 6, // sized according to type attribute
-                            strokeColor: "#00FF00",
-                            strokeWidth: 6,
-                            graphicZIndex: 1
-                        })
-                    });
+    /** private: method[retreive_route]
+     *
+     * Get the route to node ref
+     *
+     */
+    retreive_route: function(e) {
+        var pixel = new OpenLayers.Pixel(e.xy.x,e.xy.y);
+        var lonlat = this.getLonLatFromPixel(pixel);
+        // Find the closest node, and display route to node ref
+        Ext.Ajax.request({
+            url: "/route/?x="+lonlat.lon+"&y="+lonlat.lat,
+            method: 'GET',
+            success: function(response, options) {
+                // Draw the response :
 
-                    // Clear layer
-                    data = Ext.util.JSON.decode(response.responseText);
-                    route_layers = this.getLayersByName("route_layer");
-                    if(route_layers.length == 0) {
-                        routeLay = new OpenLayers.Layer.Vector("route_layer", {styleMap: styleRoute});
-                        this.addLayer(routeLay);
-                    }
-                    else {
-                        routeLay = route_layers[0];
-                        routeLay.removeAllFeatures();
-                    }
+                var styleRoute = new OpenLayers.StyleMap({
+                    "default": new OpenLayers.Style({
+                        pointRadius: 6, // sized according to type attribute
+                        strokeColor: "#00FF00",
+                        strokeWidth: 6,
+                        graphicZIndex: 1
+                    })
+                });
 
-                    // Add features
-                    var wkt = new OpenLayers.Format.WKT();
-                    var wktData = data.route[0].geometries[0];
-                    if(!wktData) {
-                        Ext.Msg.alert('No informations', 'No route has been found for the closest node.');
-                        return;
+                // Clear layer
+                data = Ext.util.JSON.decode(response.responseText);
+                route_layers = this.getLayersByName("route_layer");
+                if(route_layers.length == 0) {
+                    routeLay = new OpenLayers.Layer.Vector("route_layer", {styleMap: styleRoute});
+                    this.addLayer(routeLay);
+                }
+                else {
+                    routeLay = route_layers[0];
+                    routeLay.removeAllFeatures();
+                }
+
+                // Add features
+                var wkt = new OpenLayers.Format.WKT();
+                var wktData = data.route[0].geometries[0];
+                if(!wktData) {
+                    Ext.Msg.alert('No informations', 'No route has been found for the closest node.');
+                    return;
+                }
+                var features = wkt.read(wktData);
+                if(features) {
+                    if(features.constructor != Array) {
+                        features = [features];
                     }
-                    var features = wkt.read(wktData);
-                    if(features) {
-                        if(features.constructor != Array) {
-                            features = [features];
+                    var bounds;
+                    for(var i=0; i<features.length; ++i) {
+                        if (!bounds) {
+                            bounds = features[i].geometry.getBounds();
+                        } else {
+                            bounds.extend(features[i].geometry.getBounds());
                         }
-                        var bounds;
-                        for(var i=0; i<features.length; ++i) {
-                            if (!bounds) {
-                                bounds = features[i].geometry.getBounds();
-                            } else {
-                                bounds.extend(features[i].geometry.getBounds());
-                            }
-
-                        }
-                        routeLay.addFeatures(features);
 
                     }
-                },
-                failure: function(response, options) {
-                    Ext.Msg.alert('No informations', 'The route could not be retreive.');
-                },
-                scope: this
-            });
+                    routeLay.addFeatures(features);
 
+                }
+            },
+            failure: function(response, options) {
+                Ext.Msg.alert('No informations', 'The route could not be retreive.');
+            },
+            scope: this
         });
     },
 
