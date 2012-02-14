@@ -164,13 +164,13 @@
 
         <mkdir dir="${build}/${ant.project.name}/WEB-INF/app/static/script"/>
         
-        <copy todir="${build}/buildkit/lib/buildkit" file="app/build-maxi.js"/>
+        <copy todir="externals/buildkit/lib/buildkit" file="app/build-maxi.js"/>
         
-        <java jar="${build}/ringo/run.jar" fork="true" failonerror="true">
-            <sysproperty key="ringo.classpath" path="${build}/ringo/lib/**"/>
-            <arg path="${build}/buildkit/lib/buildkit/build-maxi.js"/>
+        <java jar="externals/ringo/run.jar" fork="true" failonerror="true">
+            <sysproperty key="ringo.home" path="externals/ringo"/>
+            <arg path="externals/buildkit/lib/buildkit/build-maxi.js"/>
             <arg line="-o ${build}/${ant.project.name}/WEB-INF/app/static/script buildjs.cfg"/>
         </java>
     </target>
-    
+
 </project>
