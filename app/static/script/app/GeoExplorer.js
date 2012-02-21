@@ -929,7 +929,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
         var lonlat = this.getLonLatFromPixel(pixel);
         // Find the closest node, and display route to node ref
         Ext.Ajax.request({
-            url: "/route/?x="+lonlat.lon+"&y="+lonlat.lat,
+            url: "/route/?x="+lonlat.lon+"&y="+lonlat.lat+"&map_projection="+this.projection.replace("EPSG:",""),
             method: 'GET',
             success: function(response, options) {
                 // Draw the response :
