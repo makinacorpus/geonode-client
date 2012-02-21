@@ -500,7 +500,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             map: this.mapPanel.map,
             defaults: {cls: 'legend-item'}
         });
-
+	
         var layerTree;
         this.on("ready", function(){
             var startSourceId = null;
