@@ -44,6 +44,8 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
     
     featuresPanelText: "UT:Features",
     saveFeatureText: "UT:Save",
+    saveSuccessfulText: "UT:Save successful",
+    saveFailedText: "UT:Save failed",
     
     /** api: config[useToolbar]
      *  ``Boolean`` If set to false, no top toolbar will be rendered.
@@ -122,6 +124,7 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
 	
 	this.featuresPanel = new Ext.Panel({
             title: this.featuresPanelText,
+            bodyCfg : { cls:'x-panel-body feature-panel'},
             border: false,
             hideMode: "offsets",
             split: true,
@@ -149,10 +152,10 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                         method: 'POST',
                         params: { data :jsonDataEncode, source: this.user},
                         success: function(response, options) {
-                            Ext.Msg.alert('Information', 'Save successful.');
+                            Ext.Msg.alert('Information', this.saveSuccessfulText);
                         },
                         failure: function(response, options) {
-                            Ext.Msg.alert('Error', 'Save failed.');
+                            Ext.Msg.alert('Information', this.saveFailedText);
                         }
                     });
                 },
