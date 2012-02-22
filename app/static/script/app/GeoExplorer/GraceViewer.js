@@ -33,6 +33,11 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
      */
     featureCache: null,
     
+    /** private: property[user]
+     *  ``Object``
+     */
+    user: null,
+
     /** api: config[useCapabilities]
      *  ``Boolean`` If set to false, no Capabilities document will be loaded.
      */
@@ -123,38 +128,38 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
             autoScroll: true,
             ascending: false,
             map: this.mapPanel.map,
-	    layout: "fit",
+            layout: "fit",
             collapseMode: "mini",
-	    collapsed: true,
+            collapsed: true,
             header: false,
             split: true,
-	    region: "east",
+            region: "east",
             width: 400,
-	    items: [
-	      this.featuresTabPanel
-	    ],
-	    bbar: ["->", 
-		  {
-		      text: this.saveFeatureText,
-		      iconCls: "gxp-icon-save",
-		      handler: function() {
-			  jsonDataEncode = Ext.util.JSON.encode(this.featureCache);
-			  Ext.Ajax.request({
-			      url: this.urlWriteFeature,
-			      method: 'POST',
-			      params: { data :jsonDataEncode},
-			      success: function(response, options) {
-				  Ext.Msg.alert('Information', 'Save successful.');
-			      },
-			      failure: function(response, options) {
-				  Ext.Msg.alert('Error', 'Save failed.');
-			      }
-			  });
-		      },
-		      scope: this
-		  }]
+            items: [
+                this.featuresTabPanel
+            ],
+            bbar: ["->", 
+            {
+                text: this.saveFeatureText,
+                iconCls: "gxp-icon-save",
+                handler: function() {
+                    jsonDataEncode = Ext.util.JSON.encode(this.featureCache);
+                    Ext.Ajax.request({
+                        url: this.urlWriteFeature,
+                        method: 'POST',
+                        params: { data :jsonDataEncode, source: this.user},
+                        success: function(response, options) {
+                            Ext.Msg.alert('Information', 'Save successful.');
+                        },
+                        failure: function(response, options) {
+                            Ext.Msg.alert('Error', 'Save failed.');
+                        }
+                    });
+                },
+                scope: this
+            }]
         });
-	
+
         this.mapPanelContainer = new Ext.Panel({
             layout: "card",
             region: "center",
