@@ -869,8 +869,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                     enableToggle: true,
                     iconCls: 'icon-routing'
                 }));
-
-
+            
         this.on("saved", function() {
             // enable the "Publish Map" button
             if(publishEnable)

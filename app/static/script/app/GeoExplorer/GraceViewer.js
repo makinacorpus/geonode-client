@@ -122,6 +122,30 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                             layoutOnTabChange: true
                         });
 	
+    // Add button save or not, according to the rights
+    featureToolbar = [];
+    if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("edit_attr") != -1)
+        featureToolbar = ["->", 
+                {
+                    text: this.saveFeatureText,
+                    iconCls: "gxp-icon-save",
+                    handler: function() {
+                        jsonDataEncode = Ext.util.JSON.encode(this.featureCache);
+                        Ext.Ajax.request({
+                            url: this.urlWriteFeature,
+                            method: 'POST',
+                            params: { data :jsonDataEncode, source: this.user},
+                            success: function(response, options) {
+                                Ext.Msg.alert('Information', this.saveSuccessfulText);
+                            },
+                            failure: function(response, options) {
+                                Ext.Msg.alert('Information', this.saveFailedText);
+                            }
+                        });
+                    },
+                    scope: this
+                }];
+
 	this.featuresPanel = new Ext.Panel({
             title: this.featuresPanelText,
             bodyCfg : { cls:'x-panel-body feature-panel'},
@@ -141,26 +165,7 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
             items: [
                 this.featuresTabPanel
             ],
-            bbar: ["->", 
-            {
-                text: this.saveFeatureText,
-                iconCls: "gxp-icon-save",
-                handler: function() {
-                    jsonDataEncode = Ext.util.JSON.encode(this.featureCache);
-                    Ext.Ajax.request({
-                        url: this.urlWriteFeature,
-                        method: 'POST',
-                        params: { data :jsonDataEncode, source: this.user},
-                        success: function(response, options) {
-                            Ext.Msg.alert('Information', this.saveSuccessfulText);
-                        },
-                        failure: function(response, options) {
-                            Ext.Msg.alert('Information', this.saveFailedText);
-                        }
-                    });
-                },
-                scope: this
-            }]
+            bbar: featureToolbar
         });
 
         this.mapPanelContainer = new Ext.Panel({
@@ -227,15 +232,16 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
         tools.unshift("-");
         tools.unshift(layerChooser);
 
-        var aboutButton = new Ext.Button({
+        /*var aboutButton = new Ext.Button({
             tooltip: "About this map",
             iconCls: "icon-about",
             handler: this.displayAppInfo,
             scope: this
-        });
+        });*/
 
         //tools.push("->");
         //tools.push(aboutButton);
+
 
         return tools;
     }
