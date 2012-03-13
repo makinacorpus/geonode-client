@@ -134,9 +134,18 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                         Ext.Ajax.request({
                             url: this.urlWriteFeature,
                             method: 'POST',
-                            params: { data :jsonDataEncode, source: this.user},
+                            params: { data :jsonDataEncode, source: this.user, map_projection: this.mapPanel.map.projection.replace("EPSG:","")},
                             success: function(response, options) {
-                                Ext.Msg.alert('Information', this.saveSuccessfulText);
+                                var modifiedOk = true;
+                                if(response.responseText) {
+                                    status = eval('(' + response.responseText + ')');
+                                    if(status.records[0].status == false) {
+                                        Ext.Msg.alert('Information', status.records[0].msg);
+                                        modifiedOk = false;
+                                    }
+                                }
+                                if(modifiedOk)
+                                    Ext.Msg.alert('Information', this.saveSuccessfulText);
                             },
                             failure: function(response, options) {
                                 Ext.Msg.alert('Information', this.saveFailedText);
