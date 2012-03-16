@@ -82,7 +82,15 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                 rasterStyling: true,
                 actionTarget: undefined
             });
+            
+            
+            config.tools = (config.tools || []).concat({
+                ptype: "gxp_zoom",
+                actionTarget: {target: "main.tbar", index: 4}
+            });
+
         }
+
         // load the super's super, because we don't want the default tools from
         // GeoExplorer
         GeoExplorer.superclass.loadConfig.apply(this, arguments);
