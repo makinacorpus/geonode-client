@@ -43,9 +43,9 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
      */
     
     featuresPanelText: "UT:Features",
-    saveFeatureText: "UT:Save",
-    saveSuccessfulText: "UT:Save successful",
-    saveFailedText: "UT:Save failed",
+    saveFeatureText: "Enregistrer",
+    saveSuccessfulText: "Enregistrement effectué",
+    saveFailedText: "Enregistrement échoué",
     
     /** api: config[useToolbar]
      *  ``Boolean`` If set to false, no top toolbar will be rendered.
@@ -162,7 +162,8 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                             },
                             failure: function(response, options) {
                                 Ext.Msg.alert('Information', this.saveFailedText);
-                            }
+                            },
+                            scope: this
                         });
                     },
                     scope: this

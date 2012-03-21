@@ -958,7 +958,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                 var wkt = new OpenLayers.Format.WKT();
                 var wktData = data.route[0].geometries[0];
                 if(!wktData) {
-                    Ext.Msg.alert('No informations', 'No route has been found for the closest node.');
+                    Ext.Msg.alert("Informations", "Aucune route n'a été trouvée");
                     return;
                 }
                 var features = wkt.read(wktData);
@@ -980,7 +980,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                 }
             },
             failure: function(response, options) {
-                Ext.Msg.alert('No informations', 'The route could not be retreive.');
+                Ext.Msg.alert("Informations", "Impossible de récupérer la route");
             },
             scope: this
         });
