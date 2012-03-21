@@ -89,6 +89,11 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                 actionTarget: {target: "main.tbar", index: 4}
             });
 
+            config.tools = (config.tools || []).concat({
+                ptype: "gxp_zoombox",
+                actionTarget: {target: "main.tbar", index: 4}
+            });
+
         }
 
         // load the super's super, because we don't want the default tools from
