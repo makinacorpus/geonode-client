@@ -247,24 +247,14 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
         var layerChooser = new Ext.Button({
             tooltip: 'Layer Switcher',
             iconCls: 'icon-layer-switcher',
-            menu: new gxp.menu.LayerMenu({
-                layers: this.mapPanel.layers
+            menu: new gxp.menu.LayerMenuSortable({
+                layers: this.mapPanel.layers,
+                map: this.mapPanel.map // new parameter
             })
         });
 
         tools.unshift("-");
         tools.unshift(layerChooser);
-
-        /*var aboutButton = new Ext.Button({
-            tooltip: "About this map",
-            iconCls: "icon-about",
-            handler: this.displayAppInfo,
-            scope: this
-        });*/
-
-        //tools.push("->");
-        //tools.push(aboutButton);
-
 
         return tools;
     }
