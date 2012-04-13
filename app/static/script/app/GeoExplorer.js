@@ -668,6 +668,22 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             border: false 
         });
 
+        var mousePositionWrapper = new Ext.Panel({
+            cls: 'overlay-element overlay-mouseposition',
+            border: false 
+        });
+        mousePositionWrapper.on('render', function(){
+            var mousePosition = new OpenLayers.Control.MousePosition({
+                "numDigits": 3,
+                displayProjection: new OpenLayers.Projection("EPSG:4326"),
+                div: mousePositionWrapper.getEl().dom
+            });
+            
+            this.mapPanel.map.addControl(mousePosition);
+        }, this);
+
+
+        
         this.on("ready", function() {
             var zoomStore = new GeoExt.data.ScaleStore({
                 map: this.mapPanel.map
@@ -723,7 +739,8 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             cls: 'map-overlay',
             items: [
                 scaleLinePanel,
-                zoomSelectorWrapper
+                zoomSelectorWrapper,
+                mousePositionWrapper
             ]
         });
 

@@ -381,3 +381,9 @@ float:right;
 .olLayerGoogleV3.olLayerGooglePoweredBy {
     bottom: 2em !important;
 }
+
+/* Mouse position */
+.overlay-mouseposition {
+    font-size: 10px;
+    line-height: 20px;
+}
