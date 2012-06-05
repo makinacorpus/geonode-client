@@ -46,6 +46,7 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
     saveFeatureText: "Enregistrer",
     saveSuccessfulText: "Enregistrement effectué",
     saveFailedText: "Enregistrement échoué",
+    confirmSaveText: "Confirmer la modification",
     
     /** api: config[useToolbar]
      *  ``Boolean`` If set to false, no top toolbar will be rendered.
@@ -143,28 +144,43 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                     text: this.saveFeatureText,
                     iconCls: "gxp-icon-save",
                     handler: function() {
+                        
                         jsonDataEncode = Ext.util.JSON.encode(this.featureCache);
-                        Ext.Ajax.request({
-                            url: this.urlWriteFeature,
-                            method: 'POST',
-                            params: { data :jsonDataEncode, source: this.user, map_projection: this.mapPanel.map.projection.replace("EPSG:","")},
-                            success: function(response, options) {
-                                var modifiedOk = true;
-                                if(response.responseText) {
-                                    status = eval('(' + response.responseText + ')');
-                                    if(status.records[0].status == false) {
-                                        Ext.Msg.alert('Information', status.records[0].msg);
-                                        modifiedOk = false;
-                                    }
+                        
+                        Ext.Msg.show({
+                            title: this.confirmSaveText,
+                            msg: this.confirmSaveText,
+                            buttons: Ext.Msg.YESNO,
+                            fn: function(button) {
+                                if (button === "yes") {
+                                    Ext.Ajax.request({
+                                        url: this.urlWriteFeature,
+                                        method: 'POST',
+                                        params: { data :jsonDataEncode, source: this.user, map_projection: this.mapPanel.map.projection.replace("EPSG:","")},
+                                        success: function(response, options) {
+                                            var modifiedOk = true;
+                                            if(response.responseText) {
+                                                status = eval('(' + response.responseText + ')');
+                                                if(status.records[0].status == false) {
+                                                    Ext.Msg.alert('Information', status.records[0].msg);
+                                                    modifiedOk = false;
+                                                }
+                                            }
+                                            if(modifiedOk)
+                                                Ext.Msg.alert('Information', this.saveSuccessfulText);
+                                        },
+                                        failure: function(response, options) {
+                                            Ext.Msg.alert('Information', this.saveFailedText);
+                                        },
+                                        scope: this
+                                    });                                
                                 }
-                                if(modifiedOk)
-                                    Ext.Msg.alert('Information', this.saveSuccessfulText);
                             },
-                            failure: function(response, options) {
-                                Ext.Msg.alert('Information', this.saveFailedText);
-                            },
-                            scope: this
+                            scope: this,
+                            icon: Ext.MessageBox.QUESTION
                         });
+                        
+                        
                     },
                     scope: this
                 }];
