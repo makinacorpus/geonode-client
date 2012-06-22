@@ -646,6 +646,79 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
      * map-friendliness.
      */
     createMapOverlay: function() {
+        ////////////////////////////////////////////////////////////////////////////////////////
+        var searchAddress = new Ext.form.TextField({
+                    //fieldLabel: 'Localiser',
+                    name: 'searchAddress',
+                    cls: 'searchitemtext',
+                    emptyText:'Commune...',
+                    selectOnFocus: true,
+                    enableKeyEvents: true
+        });
+        /*var titleField = new Ext.form.TextField({
+            width: '95%',
+            fieldLabel: this.metaDataMapTitle,
+            value: this.about.title,
+            allowBlank: false,
+            enableKeyEvents: true,
+            listeners: {
+                "valid": function() {
+                    saveAsButton.enable();
+                    saveButton.enable();
+                },
+                "invalid": function() {
+                    saveAsButton.disable();
+                    saveButton.disable();
+                }
+            }
+        });*/
+
+        var searchAddressButton = new Ext.Button({
+            text : 'Ok',
+            listeners: {
+                click: function(){
+                    // Using geonames to find places
+                    var commune = searchAddress.getEl().dom.value;
+                    if (commune != "") {
+                        var url = "http://ws.geonames.org/search?name="+commune+"&country=fr&maxRows=10&style=full&featureClass=P";                        
+                        Ext.Ajax.request({
+                            waitMsg: 'Veuillez patienter',
+                            url: url,
+                            success:function(response,options){
+                                var node = response.responseXML.getElementsByTagName("geonames");
+                                var lon, lat, name;
+                                if (node.length > 0) {
+                                    node = node[0].getElementsByTagName("geoname");
+                                    if (node.length > 0) {
+                                        lon = node[0].getElementsByTagName("lng")[0].firstChild.data;
+                                        lat = node[0].getElementsByTagName("lat")[0].firstChild.data;
+                                        name = node[0].getElementsByTagName("name")[0].firstChild.data;
+
+                                        geonamesProjection = new OpenLayers.Projection("EPSG:4326");
+                                        displayProjection = new OpenLayers.Projection("EPSG:900913");
+                                    }
+                                    if (lat && lon) {
+                                        if (name)
+                                            searchAddress.getEl().dom.value = name;
+                                        var lonLat = new OpenLayers.LonLat(lon,lat).transform(geonamesProjection,displayProjection);
+                                        this.mapPanel.map.setCenter(new OpenLayers.LonLat(lonLat.lon,lonLat.lat),this.mapPanel.map.getZoom());
+                                    }
+                                    else {
+                                        Ext.Msg.alert("Informations", "Impossible de trouver ce lieu");
+                                    }
+                                }
+                            },
+                            scope: this
+                        });
+                    }
+                },
+                scope:this
+            },
+            cls: 'searchitembutton'
+        });
+
+        ////////////////////////////////////////////////////////////////////////////////////////
+        
         var scaleLinePanel = new Ext.BoxComponent({
             autoEl: {
                 tag: "div",
@@ -738,6 +811,8 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             // title: "Overlay",
             cls: 'map-overlay',
             items: [
+                searchAddress,
+                searchAddressButton,
                 scaleLinePanel,
                 zoomSelectorWrapper,
                 mousePositionWrapper
