@@ -655,24 +655,6 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                     selectOnFocus: true,
                     enableKeyEvents: true
         });
-        /*var titleField = new Ext.form.TextField({
-            width: '95%',
-            fieldLabel: this.metaDataMapTitle,
-            value: this.about.title,
-            allowBlank: false,
-            enableKeyEvents: true,
-            listeners: {
-                "valid": function() {
-                    saveAsButton.enable();
-                    saveButton.enable();
-                },
-                "invalid": function() {
-                    saveAsButton.disable();
-                    saveButton.disable();
-                }
-            }
-        });*/
-
         var searchAddressButton = new Ext.Button({
             text : 'Ok',
             listeners: {
