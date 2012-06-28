@@ -683,7 +683,11 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                                         if (name)
                                             searchAddress.getEl().dom.value = name;
                                         var lonLat = new OpenLayers.LonLat(lon,lat).transform(geonamesProjection,displayProjection);
-                                        this.mapPanel.map.setCenter(new OpenLayers.LonLat(lonLat.lon,lonLat.lat),this.mapPanel.map.getZoom());
+                                        
+                                        if (!this.initialConfig.locate_zoom)
+                                            this.mapPanel.map.setCenter(new OpenLayers.LonLat(lonLat.lon,lonLat.lat),this.mapPanel.map.getZoom());
+                                        else
+                                            this.mapPanel.map.setCenter(new OpenLayers.LonLat(lonLat.lon,lonLat.lat),this.initialConfig.locate_zoom);
                                     }
                                     else {
                                         Ext.Msg.alert("Informations", "Impossible de trouver ce lieu");
