@@ -646,15 +646,18 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
      * map-friendliness.
      */
     createMapOverlay: function() {
-        ////////////////////////////////////////////////////////////////////////////////////////
-        var searchAddress = new Ext.form.TextField({
-                    //fieldLabel: 'Localiser',
-                    name: 'searchAddress',
-                    cls: 'searchitemtext',
-                    emptyText:'Commune...',
-                    selectOnFocus: true,
-                    enableKeyEvents: true
+        var searchAddressWrapper = new Ext.Panel({
+            cls: 'overlay-element overlay-searchaddress',
+            border: false 
         });
+        var searchAddress = new Ext.form.TextField({
+            name: 'searchAddress',
+            cls: 'searchitemtext',
+            emptyText:'Commune...',
+            selectOnFocus: true,
+            enableKeyEvents: true
+        });
+        
         var searchAddressButton = new Ext.Button({
             text : 'Ok',
             listeners: {
@@ -702,8 +705,10 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             },
             cls: 'searchitembutton'
         });
-
-        ////////////////////////////////////////////////////////////////////////////////////////
+        
+        searchAddressWrapper.add(searchAddress);
+        searchAddressWrapper.add(searchAddressButton);
+        searchAddressWrapper.doLayout();
         
         var scaleLinePanel = new Ext.BoxComponent({
             autoEl: {
@@ -791,17 +796,17 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
 
             zoomSelectorWrapper.add(zoomSelector);
             zoomSelectorWrapper.doLayout();
+            
         }, this);
 
         var mapOverlay = new Ext.Panel({
             // title: "Overlay",
             cls: 'map-overlay',
             items: [
-                searchAddress,
-                searchAddressButton,
                 scaleLinePanel,
                 zoomSelectorWrapper,
-                mousePositionWrapper
+                mousePositionWrapper,
+                searchAddressWrapper
             ]
         });
 
@@ -809,8 +814,8 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             scaleLinePanel.getEl().dom.style.position = 'relative';
             scaleLinePanel.getEl().dom.style.display = 'inline';
 
-            mapOverlay.getEl().on("click", function(x){x.stopEvent();});
-            mapOverlay.getEl().on("mousedown", function(x){x.stopEvent();});
+            //mapOverlay.getEl().on("click", function(x){x.stopEvent();});
+            //mapOverlay.getEl().on("mousedown", function(x){x.stopEvent();});
         }, this);
 
         return mapOverlay;
