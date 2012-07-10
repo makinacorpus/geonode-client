@@ -135,6 +135,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
     propertiesText: "UT:Properties",
     publishActionText: 'UT:Publish Map',
     routingActionText: 'UT:Routing',
+    mobileActionText: 'Saisie directe',
     saveFailMessage: "UT: Sorry, your map could not be saved.",
     saveFailTitle: "UT: Error While Saving",
     saveMapText: "UT: Save Map",
@@ -943,6 +944,21 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
         if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("3D") != -1)
             tools.push(enable3DButton);
 
+        // Edit on mobile
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("edit_mobile") != -1) {
+            tools.push(new Ext.Button({
+                    tooltip: this.mobileActionText,
+                    handler: function() {
+                        window.location = this.initialConfig.urlMobile;
+                    },
+                    scope: this,
+                    enableToggle: false,
+                    iconCls: 'icon-mobile'
+                }));
+            tools.push("-");
+        }
+            
+        
         // Routing
         if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("routing") != -1)
             tools.push(new Ext.Button({
@@ -952,6 +968,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                     enableToggle: true,
                     iconCls: 'icon-routing'
                 }));
+
             
         this.on("saved", function() {
             // enable the "Publish Map" button
