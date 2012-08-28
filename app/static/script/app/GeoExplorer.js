@@ -515,7 +515,15 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             // find the add layers plugin
             var addLayers = null;
             for (var key in this.tools) {
-                var tool = this.tools[key];
+                var tool = this.tools[key];       var layersContainer = new Ext.Panel({
+            id: "layertree",
+            autoScroll: true,
+            border: false,
+            title: this.layersContainerText,
+            tbar: {
+                id: 'treetbar'
+            }
+        });
                 if (tool.ptype === "gxp_addlayers") {
                     addLayers = tool;
                     addLayers.startSourceId = startSourceId;
@@ -661,11 +669,15 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
         
         var searchAddressButton = new Ext.Button({
             text : 'Ok',
+            iconCls: 'searchitembutton',
             listeners: {
                 click: function(){
                     // Using geonames to find places
                     var commune = searchAddress.getEl().dom.value;
                     if (commune != "") {
+                        // Set Wait spinner while searching places
+                        searchAddressButton.setIconClass("searchitembuttonwait");
+                        
                         var url = "http://ws.geonames.org/search?name="+commune+"&country=fr&maxRows=10&style=full&featureClass=P";                        
                         Ext.Ajax.request({
                             waitMsg: 'Veuillez patienter',
@@ -697,6 +709,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                                         Ext.Msg.alert("Informations", "Impossible de trouver ce lieu");
                                     }
                                 }
+                                searchAddressButton.setIconClass("searchitembutton");
                             },
                             scope: this
                         });
