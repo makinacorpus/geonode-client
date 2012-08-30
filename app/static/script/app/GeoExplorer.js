@@ -515,15 +515,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             // find the add layers plugin
             var addLayers = null;
             for (var key in this.tools) {
-                var tool = this.tools[key];       var layersContainer = new Ext.Panel({
-            id: "layertree",
-            autoScroll: true,
-            border: false,
-            title: this.layersContainerText,
-            tbar: {
-                id: 'treetbar'
-            }
-        });
+                var tool = this.tools[key];
                 if (tool.ptype === "gxp_addlayers") {
                     addLayers = tool;
                     addLayers.startSourceId = startSourceId;
