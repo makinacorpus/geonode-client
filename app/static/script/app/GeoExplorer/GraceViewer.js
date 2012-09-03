@@ -95,6 +95,13 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                 actionTarget: {target: "main.tbar", index: 4}
             });
 
+            if (!config.tools_enabled || config.tools_enabled.indexOf("legend") != -1) {
+                config.tools = (config.tools || []).concat({
+                    ptype: "gxp_legend",
+                    actionTarget: {target: "main.tbar", index: 15}
+                });
+            }
+
         }
 
         // load the super's super, because we don't want the default tools from

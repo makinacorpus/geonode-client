@@ -370,7 +370,8 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
     },
     
     loadConfig: function(config) {
-        config.tools = (config.tools || []).concat({
+        config.tools = (config.tools || []).concat(
+           {
             ptype: "gxp_zoom",
             actionTarget: {target: "paneltbar", index: 4}
         }, {
@@ -973,8 +974,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
                     enableToggle: true,
                     iconCls: 'icon-routing'
                 }));
-
-            
+           
         this.on("saved", function() {
             // enable the "Publish Map" button
             if(publishEnable)
@@ -982,6 +982,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
             this.modified ^= this.modified & 1;
         }, this);
 
+        
         return tools;
     },
 
