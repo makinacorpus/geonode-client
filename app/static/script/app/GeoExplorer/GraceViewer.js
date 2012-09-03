@@ -276,8 +276,10 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
             })
         });
 
-        tools.unshift("-");
-        tools.unshift(layerChooser);
+        if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("layers") != -1) {
+            tools.unshift("-");
+            tools.unshift(layerChooser);
+        }
 
         return tools;
     }
