@@ -134,7 +134,7 @@ var GeoExplorer = Ext.extend(gxp.Viewer, {
     printWindowTitleText: "UT:Print Preview",
     propertiesText: "UT:Properties",
     publishActionText: 'UT:Publish Map',
-    routingActionText: 'UT:Routing',
+    routingActionText: 'Routage',
     mobileActionText: 'Saisie directe',
     saveFailMessage: "UT: Sorry, your map could not be saved.",
     saveFailTitle: "UT: Error While Saving",
