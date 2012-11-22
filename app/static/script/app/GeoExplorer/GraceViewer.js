@@ -47,6 +47,11 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
     saveSuccessfulText: "Enregistrement effectué",
     saveFailedText: "Enregistrement échoué",
     confirmSaveText: "Confirmer la modification",
+    delFeatureText: "Supprimer",
+    delSuccessfulText: "Suppression effectuée",
+    delFailedText: "Suppression échouée",
+    confirmDelText: "Confirmer la suppression",
+
     
     /** api: config[useToolbar]
      *  ``Boolean`` If set to false, no top toolbar will be rendered.
@@ -146,8 +151,7 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
     // Add button save or not, according to the rights
     featureToolbar = [];
     if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("edit_attr") != -1)
-        featureToolbar = ["->", 
-                {
+        var saveFeatureButton = new Ext.Button({
                     text: this.saveFeatureText,
                     iconCls: "gxp-icon-save",
                     handler: function() {
@@ -186,12 +190,76 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                             scope: this,
                             icon: Ext.MessageBox.QUESTION
                         });
-                        
-                        
                     },
                     scope: this
-                }];
+        });
 
+    // Add button delete or not, according to the rights, and the current map
+    if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("del_obj") != -1)
+        var delFeatureButton = new Ext.Button({
+                    text: this.delFeatureText,
+                    iconCls: "gxp-icon-del",
+                    handler: function() {
+                        
+                        jsonDataEncode = Ext.util.JSON.encode(this.featureCache);
+                        
+                        Ext.Msg.show({
+                            title: this.confirmDelText,
+                            msg: this.confirmDelText,
+                            buttons: Ext.Msg.YESNO,
+                            fn: function(button) {
+                                if (button === "yes") {
+                                    // TODO (remplacer le code ci dessou par le bon).
+                                    Ext.Ajax.request({
+                                        url: this.urlDeleteFeature,
+                                        method: 'POST',
+                                        params: { data :jsonDataEncode, source: this.user, map_projection: this.mapPanel.map.projection.replace("EPSG:","")},
+                                        success: function(response, options) {
+                                            var modifiedOk = true;
+                                            if(response.responseText) {
+                                                status = eval('(' + response.responseText + ')');
+                                                if(status.records[0].status == false) {
+                                                    Ext.Msg.alert('Information', status.records[0].msg);
+                                                    modifiedOk = false;
+                                                }
+                                            }
+                                            if(modifiedOk) {
+                                                Ext.Msg.alert('Information', this.delSuccessfulText);
+                                                // Refresh map
+                                                for(i = 0; i < this.mapPanel.map.layers.length ; i++) {
+                                                    currentLayer = this.mapPanel.map.layers[i];
+                                                    if(!currentLayer.isBaseLayer && currentLayer.visibility)
+                                                        currentLayer.redraw(true);
+                                                }
+                                                // Delete selection on map, empty tabs
+                                                for (key in this.tools) {
+                                                    var currentTool = this.tools[key];                                                
+                                                    if(currentTool.ptype == "gxp_wmsgetandsetfeatureinfo") {
+                                                        currentTool.highLightLayer.removeAllFeatures();
+                                                        app.featuresTabPanel.removeAll();
+                                                        delete app.featureCache;
+                                                        break;
+                                                    }
+                                                }
+                                                
+                                            }
+                                        },
+                                        failure: function(response, options) {
+                                            Ext.Msg.alert('Information', this.delFailedText);
+                                        },
+                                        scope: this
+                                    });                                
+                                }
+                            },
+                            scope: this,
+                            icon: Ext.MessageBox.QUESTION
+                        });
+                    },
+                    scope: this
+        });
+
+    
+                
 	this.featuresPanel = new Ext.Panel({
             title: this.featuresPanelText,
             bodyCfg : { cls:'x-panel-body feature-panel'},
@@ -211,7 +279,7 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
             items: [
                 this.featuresTabPanel
             ],
-            bbar: featureToolbar
+            bbar: ["->", saveFeatureButton, delFeatureButton]
         });
 
         this.mapPanelContainer = new Ext.Panel({
