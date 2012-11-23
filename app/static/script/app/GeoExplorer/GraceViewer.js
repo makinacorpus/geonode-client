@@ -149,8 +149,8 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                         });
 	
     // Add button save or not, according to the rights
-    featureToolbar = [];
-    if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("edit_attr") != -1)
+    featureToolbar = ["->"];
+    if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("edit_attr") != -1) {
         var saveFeatureButton = new Ext.Button({
                     text: this.saveFeatureText,
                     iconCls: "gxp-icon-save",
@@ -193,9 +193,12 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                     },
                     scope: this
         });
-
+        featureToolbar.push(saveFeatureButton);
+        
+    }
+    
     // Add button delete or not, according to the rights, and the current map
-    if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("del_obj") != -1)
+    if (!this.initialConfig.tools_enabled || this.initialConfig.tools_enabled.indexOf("del_obj") != -1) {
         var delFeatureButton = new Ext.Button({
                     text: this.delFeatureText,
                     iconCls: "gxp-icon-del",
@@ -257,9 +260,10 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
                     },
                     scope: this
         });
-
+        featureToolbar.push(delFeatureButton);
+    }
     
-                
+    
 	this.featuresPanel = new Ext.Panel({
             title: this.featuresPanelText,
             bodyCfg : { cls:'x-panel-body feature-panel'},
@@ -279,7 +283,7 @@ GeoExplorer.GraceViewer = Ext.extend(GeoExplorer, {
             items: [
                 this.featuresTabPanel
             ],
-            bbar: ["->", saveFeatureButton, delFeatureButton]
+            bbar: featureToolbar //["->", saveFeatureButton, delFeatureButton]
         });
 
         this.mapPanelContainer = new Ext.Panel({
